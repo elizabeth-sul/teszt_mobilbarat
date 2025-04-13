@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kaparós Meghívó</title>
+  <meta name="robots" content="noimageindex">
   <style>
     html, body {
       margin: 0;
@@ -34,14 +35,15 @@
       bottom: 25%;
       left: 50%;
       transform: translateX(-50%);
-      width: 460px; 
-      height: 140px;
+      width: 80%;
+      max-width: 420px;
+      aspect-ratio: 3 / 1;
       display: flex;
       justify-content: center;
     }
     #scratch {
       width: 100%;
-      height: auto;
+      height: 100%;
       border-radius: 12px;
       cursor: pointer;
     }
@@ -49,25 +51,36 @@
 </head>
 <body>
   <div class="container">
-    <img class="image" src="meghivo.jpg" alt="Meghívó">
+    <!-- Az alábbi kép JavaScripttel kerül betöltésre, így megosztáskor nem generál előnézeti képet -->
+    <img id="invitationImage" class="image" alt="Meghívó">
     <div class="scratch-container">
-      <canvas id="scratch" width="300" height="100"></canvas>
+      <canvas id="scratch"></canvas>
     </div>
   </div>
 
   <script>
+    // Kép betöltése JS-ből (nem jelenik meg előnézetként)
+    document.getElementById("invitationImage").src = "meghivo.jpg";
+
     const canvas = document.getElementById("scratch");
     const ctx = canvas.getContext("2d");
     const hiddenText = "Szeretnél a koszorúslányom lenni?";
 
-    function setupCanvas() {
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvas.width = container.offsetWidth;
+      canvas.height = container.offsetHeight;
+      drawScratchContent();
+    }
+
+    function drawScratchContent() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = "#000";
-      ctx.font = "18px sans-serif";
+      ctx.font = `${Math.floor(canvas.height / 4)}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(hiddenText, canvas.width / 2, canvas.height / 2);
@@ -78,7 +91,8 @@
       ctx.globalCompositeOperation = "destination-out";
     }
 
-    window.addEventListener("load", setupCanvas);
+    window.addEventListener("load", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
 
     let isDrawing = false;
 
@@ -88,6 +102,7 @@
       ctx.fill();
     }
 
+    // Egér
     canvas.addEventListener("mousedown", () => isDrawing = true);
     canvas.addEventListener("mouseup", () => isDrawing = false);
     canvas.addEventListener("mouseleave", () => isDrawing = false);
@@ -97,7 +112,7 @@
       scratch(e.clientX - rect.left, e.clientY - rect.top);
     });
 
-    // Érintés támogatás mobilon
+    // Érintőképernyő
     canvas.addEventListener("touchstart", () => isDrawing = true);
     canvas.addEventListener("touchend", () => isDrawing = false);
     canvas.addEventListener("touchcancel", () => isDrawing = false);
